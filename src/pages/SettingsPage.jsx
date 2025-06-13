@@ -1,109 +1,104 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const SettingsPage = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [newUsername, setNewUsername] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSave = (e) => {
+  const handleSaveChanges = async (e) => {
     e.preventDefault();
+    try {
+      const response = await axios.post('http:127.0.0.1/api/user', {
+        newUsername,
+        oldPassword,
+        newPassword
+      });
 
-    // Bu yerda backendga yuborishingiz mumkin
-    console.log('Yangi login:', username);
-    console.log('Yangi parol:', password);
-
-    setMessage('✅ Maʼlumotlar muvaffaqiyatli saqlandi!');
-    setTimeout(() => setMessage(''), 3000);
+      if (response.data.success) {
+        setMessage('Maʼlumotlar muvaffaqiyatli yangilandi!');
+        setError('');
+      } else {
+        setError(response.data.message || 'Xatolik yuz berdi');
+        setMessage('');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Server bilan ulanishda xatolik.');
+      setMessage('');
+    }
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #e0c3fc, #8ec5fc)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '20px',
-        fontFamily: 'Segoe UI, sans-serif',
-      }}
-    >
-      <form
-        onSubmit={handleSave}
-        style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '16px',
-          padding: '40px 30px',
-          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-          width: '100%',
-          maxWidth: '460px',
-        }}
-      >
-        <h2
-          style={{
-            marginBottom: '30px',
-            textAlign: 'center',
-            color: '#333',
-            fontSize: '24px',
-          }}
-        >
-          Sozlamalarni o‘zgartirish
-        </h2>
+    <div style={{
+      maxWidth: '500px',
+      margin: '50px auto',
+      padding: '30px',
+      backgroundColor: '#fff',
+      borderRadius: '12px',
+      boxShadow: '0 8px 20px rgba(0, 0, 0, 0.1)'
+    }}>
+      <h2 style={{ textAlign: 'center', marginBottom: '24px', color: '#333' }}>Sozlamalar</h2>
 
-        {/* Login */}
-        <div style={{ marginBottom: '24px' }}>
-          <label
-            style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontWeight: '600',
-              color: '#555',
-            }}
-          >
-            Yangi login
+      {message && <p style={{ color: 'green', textAlign: 'center' }}>{message}</p>}
+      {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+
+      <form onSubmit={handleSaveChanges}>
+        {/* Yangi login */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>
+            Yangi Login
           </label>
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Yangi foydalanuvchi nomi"
+            value={newUsername}
+            onChange={(e) => setNewUsername(e.target.value)}
             required
             style={{
               width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              fontSize: '15px',
-              outline: 'none',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ccc'
             }}
           />
         </div>
 
-        {/* Parol */}
-        <div style={{ marginBottom: '30px' }}>
-          <label
-            style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontWeight: '600',
-              color: '#555',
-            }}
-          >
-            Yangi parol
+        {/* Eski parol */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>
+            Eski Parol
           </label>
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Yangi parol"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
             required
             style={{
               width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              border: '1px solid #ccc',
-              fontSize: '15px',
-              outline: 'none',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ccc'
+            }}
+          />
+        </div>
+
+        {/* Yangi parol */}
+        <div style={{ marginBottom: '28px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>
+            Yangi Parol
+          </label>
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ccc'
             }}
           />
         </div>
@@ -113,32 +108,16 @@ const SettingsPage = () => {
           style={{
             width: '100%',
             padding: '12px',
-            background: 'linear-gradient(to right, #6a11cb, #2575fc)',
+            backgroundColor: '#2575fc',
             color: '#fff',
-            fontWeight: 'bold',
             fontSize: '16px',
             border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: '0.3s ease',
+            borderRadius: '6px',
+            cursor: 'pointer'
           }}
         >
           Saqlash
         </button>
-
-        {message && (
-          <div
-            style={{
-              marginTop: '20px',
-              textAlign: 'center',
-              color: '#28a745',
-              fontWeight: 'bold',
-              fontSize: '15px',
-            }}
-          >
-            {message}
-          </div>
-        )}
       </form>
     </div>
   );

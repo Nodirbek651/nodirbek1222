@@ -1,53 +1,58 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (!fullName || !username || !password) {
-      alert('Iltimos, barcha maydonlarni to‘ldiring!');
-      return;
+    try {
+      const response = await axios.post('http:127.0.0.1/api/register', {
+        fullName,
+        username,
+        password,
+      });
+
+      if (response.data.success) {
+        setSuccessMsg('Muvaffaqiyatli ro‘yxatdan o‘tdingiz!');
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        setErrorMsg(response.data.message || 'Xatolik yuz berdi');
+      }
+    } catch (error) {
+      console.error('Ro‘yxatdan o‘tishda xatolik:', error);
+      setErrorMsg('Server bilan ulanishda xatolik!');
     }
-
-    console.log('Register:', fullName, username, password);
-
-    alert('Ro‘yxatdan o‘tildi!');
-
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        background: 'linear-gradient(to right, #6a11cb, #2575fc)',
-        padding: '20px',
-      }}
-    >
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      background: 'linear-gradient(to right, #6a11cb, #2575fc)',
+    }}>
       <form
         onSubmit={handleRegister}
         style={{
-          background: '#ffffff',
+          background: '#fff',
           padding: '40px',
-          borderRadius: '16px',
-          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.25)',
+          borderRadius: '12px',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: '400px',
           position: 'relative',
         }}
       >
-        {/* Ortga qaytish tugmasi */}
+        {/* Ortga tugma */}
         <button
           type="button"
           onClick={() => navigate('/')}
@@ -57,78 +62,89 @@ const RegisterPage = () => {
             left: '16px',
             background: 'transparent',
             border: 'none',
-            fontSize: '22px',
-            fontWeight: 'bold',
+            fontSize: '20px',
             cursor: 'pointer',
-            color: '#444',
+            color: '#333',
           }}
         >
           ←
         </button>
 
-        <h2
-          style={{
-            textAlign: 'center',
-            color: '#333',
-            marginBottom: '30px',
-            fontSize: '28px',
-          }}
-        >
+        <h2 style={{ marginBottom: '24px', textAlign: 'center', color: '#333' }}>
           Ro‘yxatdan o‘tish
         </h2>
 
+        {errorMsg && <p style={{ color: 'red', textAlign: 'center' }}>{errorMsg}</p>}
+        {successMsg && <p style={{ color: 'green', textAlign: 'center' }}>{successMsg}</p>}
+
         {/* Full Name */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={labelStyle}>To‘liq ism</label>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+            Full Name
+          </label>
           <input
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
-            style={inputStyle}
-            placeholder="Ismingizni kiriting"
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ccc',
+            }}
           />
         </div>
 
         {/* Username */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={labelStyle}>Foydalanuvchi nomi</label>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+            Username
+          </label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            style={inputStyle}
-            placeholder="Username tanlang"
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ccc',
+            }}
           />
         </div>
 
         {/* Password */}
-        <div style={{ marginBottom: '30px' }}>
-          <label style={labelStyle}>Parol</label>
+        <div style={{ marginBottom: '28px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+            Password
+          </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={inputStyle}
-            placeholder="Parol kiriting"
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ccc',
+            }}
           />
         </div>
 
-        {/* Submit button */}
         <button
           type="submit"
           style={{
             width: '100%',
-            padding: '14px',
+            padding: '12px',
             backgroundColor: '#2575fc',
             color: '#fff',
             fontSize: '16px',
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: '6px',
             cursor: 'pointer',
-            transition: '0.3s ease',
           }}
         >
           Ro‘yxatdan o‘tish
@@ -136,24 +152,6 @@ const RegisterPage = () => {
       </form>
     </div>
   );
-};
-
-// Umumiy style'lar
-const labelStyle = {
-  display: 'block',
-  marginBottom: '6px',
-  fontWeight: 'bold',
-  fontSize: '14px',
-  color: '#444',
-};
-
-const inputStyle = {
-  width: '100%',
-  padding: '12px',
-  borderRadius: '8px',
-  border: '1px solid #ccc',
-  fontSize: '14px',
-  outline: 'none',
 };
 
 export default RegisterPage;

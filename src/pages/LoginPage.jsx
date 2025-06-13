@@ -1,30 +1,43 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const LoginPage = ({ setIsLoggedIn }) => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Demo uchun login har doim muvaffaqiyatli:
-    localStorage.setItem('isLoggedIn', 'true');
-    setIsLoggedIn(true);
-    navigate('/settings'); // login muvaffaqiyatli bo‘lsa settings sahifasiga o‘tkazamiz
+    try {
+      const response = await axios.post('http:127.0.0.1/api/login', {
+        username,
+        password,
+      });
+
+      // Masalan token yoki status tekshirish
+      if (response.data.success) {
+        localStorage.setItem('isLoggedIn', 'true');
+        navigate('/settings'); // Muvaffaqiyatli login bo‘lsa settings page ga o‘tadi
+      } else {
+        setErrorMsg('Login yoki parol noto‘g‘ri!');
+      }
+    } catch (error) {
+      console.error('Login xatosi:', error);
+      setErrorMsg('Server bilan ulanishda xatolik yuz berdi!');
+    }
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        background: 'linear-gradient(to right, #6a11cb, #2575fc)',
-      }}
-    >
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      background: 'linear-gradient(to right, #141e30, #243b55)',
+    }}>
       <form
         onSubmit={handleLogin}
         style={{
@@ -37,6 +50,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
           position: 'relative',
         }}
       >
+        {/* Ortga tugma */}
         <button
           type="button"
           onClick={() => navigate('/')}
@@ -54,37 +68,51 @@ const LoginPage = ({ setIsLoggedIn }) => {
           ←
         </button>
 
-        <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>Tizimga kirish</h2>
+        <h2 style={{ marginBottom: '24px', textAlign: 'center', color: '#333' }}>
+          Login
+        </h2>
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          style={{
-            width: '100%',
-            padding: '10px',
-            marginBottom: '20px',
-            borderRadius: '6px',
-            border: '1px solid #ccc',
-          }}
-        />
+        {errorMsg && (
+          <p style={{ color: 'red', marginBottom: '16px', textAlign: 'center' }}>
+            {errorMsg}
+          </p>
+        )}
 
-        <input
-          type="password"
-          placeholder="Parol"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{
-            width: '100%',
-            padding: '10px',
-            marginBottom: '20px',
-            borderRadius: '6px',
-            border: '1px solid #ccc',
-          }}
-        />
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+            Username
+          </label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ccc',
+            }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '28px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+            Password
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ccc',
+            }}
+          />
+        </div>
 
         <button
           type="submit"
@@ -99,7 +127,7 @@ const LoginPage = ({ setIsLoggedIn }) => {
             cursor: 'pointer',
           }}
         >
-          Kirish
+          Login
         </button>
       </form>
     </div>
